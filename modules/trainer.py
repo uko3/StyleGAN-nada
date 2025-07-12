@@ -16,9 +16,9 @@ import warnings
 # warnings.filterwarnings("ignore", message="conv2d_gradfix not supported on PyTorch.*") # Already handled in Colab setup
 
 # Импортируем классы из других модулей
-from modules.model import Generator
-from modules.losses import CLIPLoss, CLIPDirectionalLoss
-from modules.utils import freeze_layers_adaptive # Будет создан ниже
+#from modules.model import Generator
+#from modules.losses import CLIPLoss, CLIPDirectionalLoss
+#from modules.utils import freeze_layers_adaptive # Будет создан ниже
 
 class LatentStyleTrainer:
     def __init__(
@@ -44,7 +44,8 @@ class LatentStyleTrainer:
         self.freeze_fn = freeze_fn
         self.clip_loss_fn = clip_directional_loss
         self.model_clip = model_clip
-
+        self.lr_generator = lr_generator
+        self.weight_decay = weight_decay
         self.model = {
             "generator_frozen": copy.deepcopy(generator).to(device).eval(),
             "generator_train": copy.deepcopy(generator).to(device).train()
