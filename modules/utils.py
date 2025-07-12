@@ -12,6 +12,7 @@ import dlib # Для выравнивания лица
 from torchvision import transforms # Для предобработки изображений для инверсии
 #from model import Generator # Для pSp
 from modules.losses import CLIPLoss # Для freeze_layers_adaptive
+import re
 
 # Assuming pSp model is defined elsewhere or will be passed in
 # from model import pSp # If pSp is a custom model

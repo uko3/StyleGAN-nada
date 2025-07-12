@@ -12,8 +12,9 @@ import clip
 import os
 from sklearn.decomposition import PCA
 import warnings
+import re
 
-# warnings.filterwarnings("ignore", message="conv2d_gradfix not supported on PyTorch.*") # Already handled in Colab setup
+warnings.filterwarnings("ignore", message="conv2d_gradfix not supported on PyTorch.*")
 
 # Импортируем классы из других модулей
 #from modules.model import Generator
