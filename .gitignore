@@ -19,9 +19,6 @@ runs/ # If you use Tensorboard
 checkpoints/ # If you save model checkpoints here
 
 # Data and large files (pretrained models, generated images)
-/pretrained_models/*.pt
-/pretrained_models/*.pth
-!/pretrained_models/stylegan2-ffhq-config-f.pt # Keep the initial FFHQ model
 /data/
 /validation_outputs/
 /validation_outputs_experimental/
