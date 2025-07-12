@@ -22,7 +22,6 @@ checkpoints/ # If you save model checkpoints here
 /pretrained_models/*.pt
 /pretrained_models/*.pth
 !/pretrained_models/stylegan2-ffhq-config-f.pt # Keep the initial FFHQ model
-/data/
 /validation_outputs/
 /validation_outputs_experimental/
 /dlib_models/shape_predictor_68_face_landmarks.dat # Already downloaded by script, but can be large
