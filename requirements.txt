@@ -1,0 +1,10 @@
+torch>=1.9.0
+torchvision
+numpy
+matplotlib
+Pillow
+tqdm
+clip@git+https://github.com/openai/CLIP.git
+dlib # For face alignment in inference
+scikit-learn # For PCA in visualization
+ninja # For StyleGAN2 Pytorch extension

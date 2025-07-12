@@ -109,8 +109,8 @@ class LatentStyleTrainer:
                 self.freeze_fn(
                     self.model['generator_train'],
                     self.model['generator_frozen'],
-                    self.text_target, # Pass text_target
-                    top_k=10 # Example k value
+                    self.text_target, 
+                    top_k=10 
                 )
                 # Re-initialize optimizer_generator with newly unfrozen parameters if freezing each epoch
                 # This ensures the optimizer only works on active parameters
@@ -125,15 +125,14 @@ class LatentStyleTrainer:
             generated_img_frozen, _ = self.model['generator_frozen']([latent_w], input_is_latent=True, randomize_noise=False)
             generated_img_style, _ = self.model['generator_train']([latent_w], input_is_latent=True, randomize_noise=False)
 
-            # Reclassify source text (need clip_classification and text_features_cat defined outside)
-            # if reclassify:
-            #    img = (generated_img_frozen[0].detach().cpu().clamp(-1, 1) + 1) / 2
-            #    img_pil = Image.fromarray((img.permute(1, 2, 0).numpy() * 255).astype(np.uint8))
-            #    source_class = clip_classification(img_pil, text_features_cat)
-            #    text_source_clp = clip.tokenize([source_class]).to(self.device)
-            #    with torch.no_grad():
-            #        self.text_source = self.model_clip.encode_text(text_source_clp)
-            #        self.text_source = self.text_source / self.text_source.norm(dim=-1, keepdim=True)
+            if reclassify:
+               img = (generated_img_frozen[0].detach().cpu().clamp(-1, 1) + 1) / 2
+               img_pil = Image.fromarray((img.permute(1, 2, 0).numpy() * 255).astype(np.uint8))
+               source_class = clip_classification(img_pil, text_features_cat)
+               text_source_clp = clip.tokenize([source_class]).to(self.device)
+               with torch.no_grad():
+                   self.text_source = self.model_clip.encode_text(text_source_clp)
+                   self.text_source = self.text_source / self.text_source.norm(dim=-1, keepdim=True)
 
             lambda_clip_val = torch.exp(self.lambda_t[0])
             lambda_l2_val = torch.exp(self.lambda_t[1])

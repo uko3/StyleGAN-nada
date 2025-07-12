@@ -35,7 +35,7 @@ def align_face(filepath, predictor):
 
 
 def freeze_layers_adaptive(model_train, model_frozen, text_target_features, k=5, auto_layer_iters=3, device='cuda'):
-    print("Applying adaptive layer freezing...")
+    # print("Applying adaptive layer freezing...")
     batch_size_temp = 2
     latent_dim = model_frozen.latent_dim
 
