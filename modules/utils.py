@@ -11,7 +11,7 @@ from sklearn.decomposition import PCA
 import dlib # Для выравнивания лица
 from torchvision import transforms # Для предобработки изображений для инверсии
 #from model import Generator # Для pSp
-#from losses import CLIPLoss # Для freeze_layers_adaptive
+from losses import CLIPLoss # Для freeze_layers_adaptive
 
 # Assuming pSp model is defined elsewhere or will be passed in
 # from model import pSp # If pSp is a custom model
