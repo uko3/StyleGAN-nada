@@ -13,6 +13,7 @@ from torchvision import transforms # Для предобработки изоб�
 #from model import Generator # Для pSp
 from modules.losses import CLIPLoss # Для freeze_layers_adaptive
 import re
+from modules.stylegan_arch.model import StyledConv, ToRGB, Generator
 
 # Assuming pSp model is defined elsewhere or will be passed in
 # from model import pSp # If pSp is a custom model
