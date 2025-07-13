@@ -85,7 +85,7 @@ class LatentStyleTrainer:
             self.freeze_fn(
                 self.model['generator_train'],
                 self.model['generator_frozen'],
-                self.text_target # Pass text_target to freeze_layers_adaptive
+                self.text_target, # Pass text_target to freeze_layers_adaptive
                 #top_k=10 # Example k value
             )
             # Initialize optimizer_generator AFTER initial freezing
@@ -111,7 +111,8 @@ class LatentStyleTrainer:
                 self.freeze_fn(
                     self.model['generator_train'],
                     self.model['generator_frozen'],
-                    self.text_target 
+                    self.text_target,
+                    #top_k
                     #top_k=10 
                 )
                 # Re-initialize optimizer_generator with newly unfrozen parameters if freezing each epoch
