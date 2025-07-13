@@ -1,114 +1,96 @@
 # StyleGAN-NADA Inversion & Stylization Toolkit
 
-## О проекте
+## About the Project
 
-Этот проект предоставляет инструмент для инверсии и стилизации изображений с помощью пользовательских генераторов StyleGAN-NADA. Система автоматически загружает зависимости, модели и применяет стилизацию через CLIP-направленные манипуляции в латентном пространстве.
+This project provides a complete pipeline for image inversion and stylization using custom-trained StyleGAN-NADA generators. It automates model setup, preprocessing, encoding, and style transfer using CLIP-guided latent manipulation.
 
 ---
 
-## 🎯 Возможности
+## 🎯 Features
 
-- 📦 **Автоматическое клонирование необходимых репозиториев**:  
-  StyleGAN-NADA, encoder4editing
+- 📦 **Automatic cloning of required repositories**  
+  - StyleGAN-NADA  
+  - encoder4editing  
 
-- ⚙️ **Автоматическая установка всех Python-зависимостей**:  
-  `ninja`, `CLIP`, `dlib`, `torch`, `face_alignment` и др.
+- ⚙️ **Automatic installation of Python dependencies**  
+  - `ninja`, `CLIP`, `dlib`, `torch`, `face_alignment`, etc.
 
-- 🔄 **Загрузка предобученных моделей**:
-  - `dlib` shape predictor
+- 📥 **Automatic download of pre-trained models**  
+  - `dlib` shape predictor  
   - pSp encoder (`e4e_ffhq_encode.pt`)
 
-- 🎨 **Поддержка нескольких пользовательских генераторов StyleGAN-NADA**
+- 🎨 **Support for multiple custom StyleGAN-NADA generators**
 
-- 🧪 **Генерация случайных изображений с помощью любого генератора**
+- 🔁 **Random image generation**  
+  - Generate random samples using any loaded StyleGAN-NADA generator
 
-- 🔁 **Инверсия и стилизация изображений**:
-  - Выравнивание лиц
-  - Кодирование с помощью pSp
-  - Манипуляция стилем через StyleGAN-NADA
+- 🔄 **Image inversion and stylization pipeline**  
+  - Face alignment  
+  - Latent encoding using pSp  
+  - Stylization via StyleGAN-NADA latent transformation
 
-- 🖼️ **Визуализация результатов**:  
-  Показываются оригинальные и стилизованные изображения рядом
-
----
-
-## 🚀 Начало работы
-
-### ⚙️ Требования
-
-- Google Colaboratory (**рекомендуется**)
-- Доступ к GPU (бесплатный или Colab Pro)
+- 🖼️ **Result visualization**  
+  - Side-by-side display of original and stylized outputs
 
 ---
 
-## 🛠️ Установка и запуск
+## 🚀 Getting Started
 
-### 1. Откройте проект в Google Colab
+### ⚙️ Requirements
 
-Если вы используете `.ipynb`:
-
-- Создайте новый ноутбук в Google Colab
-- Скопируйте туда содержимое файла `main.py` или используйте `01_Train_StyleGAN_NADA.ipynb` и `02_Inference_StyleGAN_NADA.ipynb`
-
-### 2. Запустите все ячейки
-
-Меню: `Среда выполнения` → `Запустить все` (или `Runtime` → `Run all`)
-
-### 3. Загрузка моделей
-
-- Все необходимые модели загрузятся автоматически
-- **Важно:** Убедитесь, что вы обновили Google Drive ID для ваших генераторов в словаре `stylegan_nada_generators` (в блоке загрузки генераторов)
+- Google Colaboratory (**recommended**)  
+- Access to GPU (Colab free tier or Pro)
 
 ---
 
-## 📂 Подготовка изображений
+## 🛠️ Installation & Usage
 
-1. Поместите `.png`, `.jpg` или `.jpeg` изображения в папку:
+### 1. Open in Google Colab
 
-2. Можно просто перетащить изображения в файловую панель Colab
+If you're using `.ipynb` notebooks:
+
+- Create a new notebook in Google Colab
+- Copy the content of `main.py` or use the provided:
+  - `01_Train_StyleGAN_NADA.ipynb`
+  - `02_Inference_StyleGAN_NADA.ipynb`
+
+### 2. Run all cells
+
+Go to:  
+**Runtime → Run all** (or **Среда выполнения → Запустить все**)
+
+### 3. Download models
+
+- All required pre-trained models will be downloaded automatically.
+- **Important**: Make sure to update the Google Drive IDs in the `stylegan_nada_generators` dictionary to load your custom generators.
 
 ---
 
-## ⚙️ Использование
+## 📂 Preparing Images for Inversion
 
-После запуска всех ячеек, проект выполнит:
+1. Place your `.png`, `.jpg`, or `.jpeg` images into the following folder:
 
-- ✅ Генерацию нескольких случайных изображений с использованием первого генератора
-- ✅ Обработку всех изображений в `/data/inversion`:
-- Инверсия (выравнивание и кодирование)
-- Стилизация через StyleGAN-NADA
-- Визуализация результатов
+
+2. You can drag and drop images directly into the Colab file panel.
 
 ---
 
-## 🗂️ Структура проекта
+## ⚙️ How It Works
 
-StyleGAN-nada/
-├── .gitignore
-├── README.md
-├── requirements.txt
-├── modules/
-│ ├── init.py
-│ ├── model.py # Модель StyleGAN2 (Generator и компоненты)
-│ ├── losses.py # CLIPLoss, CLIPDirectionalLoss
-│ ├── trainer.py # LatentStyleTrainer
-│ └── utils.py # freeze_layers, визуализация, PCA и др.
-├── notebooks/
-│ ├── 01_Train_StyleGAN_NADA.ipynb
-│ ├── 02_Inference_StyleGAN_NADA.ipynb
-│ └── 03_Experimental_Training.ipynb
-├── data/
-│ └── inversion/
-│ └── <ваши изображения>
-├── assets/ # Для изображений в README или презентаций
-└── dlib_models/
-└── shape_predictor_68_face_landmarks.dat
+After running all the cells:
+
+- ✅ A few random samples will be generated using the first available generator  
+- ✅ All images found in `/data/inversion/` will be processed:
+- Face alignment → Latent encoding → Stylization
+- Visual comparison between original and stylized images will be displayed
 
 
 ---
 
-## 📬 Обратная связь
+## 📬 Feedback
 
-Если вы нашли баг или хотите предложить улучшение — создайте [issue](https://github.com/ваш-проект/issues) или откройте pull request!
+If you find a bug or want to suggest an improvement, feel free to open an [issue](https://github.com/uko3/StyleGAN-nada) or submit a pull request.
 
 ---
+
+
