@@ -6,44 +6,44 @@ This project provides a complete pipeline for image inversion and stylization us
 
 ---
 
-## 🎯 Features
+## Features
 
-- 📦 **Automatic cloning of required repositories**  
+- **Automatic cloning of required repositories**  
   - StyleGAN-NADA  
   - encoder4editing  
 
-- ⚙️ **Automatic installation of Python dependencies**  
+- **Automatic installation of Python dependencies**  
   - `ninja`, `CLIP`, `dlib`, `torch`, `face_alignment`, etc.
 
-- 📥 **Automatic download of pre-trained models**  
+- **Automatic download of pre-trained models**  
   - `dlib` shape predictor  
   - pSp encoder (`e4e_ffhq_encode.pt`)
 
-- 🎨 **Support for multiple custom StyleGAN-NADA generators**
+- **Support for multiple custom StyleGAN-NADA generators**
 
-- 🔁 **Random image generation**  
+- **Random image generation**  
   - Generate random samples using any loaded StyleGAN-NADA generator
 
-- 🔄 **Image inversion and stylization pipeline**  
+- **Image inversion and stylization pipeline**  
   - Face alignment  
   - Latent encoding using pSp  
   - Stylization via StyleGAN-NADA latent transformation
 
-- 🖼️ **Result visualization**  
+- **Result visualization**  
   - Side-by-side display of original and stylized outputs
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
-### ⚙️ Requirements
+### Requirements
 
 - Google Colaboratory (**recommended**)  
 - Access to GPU (Colab free tier or Pro)
 
 ---
 
-## 🛠️ Installation & Usage
+## Installation & Usage
 
 ### 1. Open in Google Colab
 
@@ -66,7 +66,7 @@ Go to:
 
 ---
 
-## 📂 Preparing Images for Inversion
+## Preparing Images for Inversion
 
 1. Place your `.png`, `.jpg`, or `.jpeg` images into the following folder:
 
@@ -75,19 +75,19 @@ Go to:
 
 ---
 
-## ⚙️ How It Works
+## How It Works
 
 After running all the cells:
 
-- ✅ A few random samples will be generated using the first available generator  
-- ✅ All images found in `/data/inversion/` will be processed:
+- A few random samples will be generated using the first available generator  
+- All images found in `/data/inversion/` will be processed:
 - Face alignment → Latent encoding → Stylization
 - Visual comparison between original and stylized images will be displayed
 
 
 ---
 
-## 📬 Feedback
+## Feedback
 
 If you find a bug or want to suggest an improvement, feel free to open an [issue](https://github.com/uko3/StyleGAN-nada) or submit a pull request.
 
