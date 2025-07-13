@@ -1,5 +1,3 @@
-# modules/trainer.py
-
 import torch
 import torch.optim as optim
 import copy
@@ -15,11 +13,6 @@ import warnings
 import re
 
 warnings.filterwarnings("ignore", message="conv2d_gradfix not supported on PyTorch.*")
-
-# Импортируем классы из других модулей
-#from modules.model import Generator
-#from modules.losses import CLIPLoss, CLIPDirectionalLoss
-#from modules.utils import freeze_layers_adaptive # Будет создан ниже
 
 class LatentStyleTrainer:
     def __init__(
@@ -52,7 +45,6 @@ class LatentStyleTrainer:
             "generator_train": copy.deepcopy(generator).to(device).train()
         }
 
-        # Ensure generator_frozen parameters are actually frozen
         for param in self.model["generator_frozen"].parameters():
             param.requires_grad = False
 
@@ -63,7 +55,6 @@ class LatentStyleTrainer:
         )
 
         self.optimizer_lambda = torch.optim.Adam([self.lambda_t], lr=lr_lambda)
-        # Optimizer for generator will be set after freezing in train method
         self.optimizer_generator = None
 
         self.text_target = text_features_target
@@ -80,23 +71,21 @@ class LatentStyleTrainer:
         return latent_w
 
     def train(self, epochs, freeze_each_epoch=True, reclassify=False, seed=None):
-        # Initial freezing outside the loop if not freezing each epoch
         if not freeze_each_epoch:
             self.freeze_fn(
                 self.model['generator_train'],
                 self.model['generator_frozen'],
-                self.text_target, # Pass text_target to freeze_layers_adaptive
-                #top_k=10 # Example k value
+                self.text_target
             )
-            # Initialize optimizer_generator AFTER initial freezing
+  
             self.optimizer_generator = torch.optim.Adam(
                 filter(lambda p: p.requires_grad, self.model["generator_train"].parameters()),
-                lr=self.lr_generator, # Use self.lr_generator from init
-                weight_decay=self.weight_decay # Use self.weight_decay from init
+                lr=self.lr_generator, 
+                weight_decay=self.weight_decay 
             )
-        else: # If freezing each epoch, initialize optimizer with all params initially
+        else: 
              self.optimizer_generator = torch.optim.Adam(
-                self.model["generator_train"].parameters(), # All params initially
+                self.model["generator_train"].parameters(), 
                 lr=self.lr_generator,
                 weight_decay=self.weight_decay
             )
@@ -111,12 +100,9 @@ class LatentStyleTrainer:
                 self.freeze_fn(
                     self.model['generator_train'],
                     self.model['generator_frozen'],
-                    self.text_target,
-                    #top_k
-                    #top_k=10 
+                    self.text_target
                 )
-                # Re-initialize optimizer_generator with newly unfrozen parameters if freezing each epoch
-                # This ensures the optimizer only works on active parameters
+
                 self.optimizer_generator = torch.optim.Adam(
                     filter(lambda p: p.requires_grad, self.model["generator_train"].parameters()),
                     lr=self.lr_generator,
