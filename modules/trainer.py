@@ -85,8 +85,8 @@ class LatentStyleTrainer:
             self.freeze_fn(
                 self.model['generator_train'],
                 self.model['generator_frozen'],
-                self.text_target, # Pass text_target to freeze_layers_adaptive
-                top_k=10 # Example k value
+                self.text_target # Pass text_target to freeze_layers_adaptive
+                #top_k=10 # Example k value
             )
             # Initialize optimizer_generator AFTER initial freezing
             self.optimizer_generator = torch.optim.Adam(
@@ -111,8 +111,8 @@ class LatentStyleTrainer:
                 self.freeze_fn(
                     self.model['generator_train'],
                     self.model['generator_frozen'],
-                    self.text_target, 
-                    top_k=10 
+                    self.text_target 
+                    #top_k=10 
                 )
                 # Re-initialize optimizer_generator with newly unfrozen parameters if freezing each epoch
                 # This ensures the optimizer only works on active parameters
