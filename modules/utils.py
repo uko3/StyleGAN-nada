@@ -22,7 +22,7 @@ from modules.stylegan_arch.model import StyledConv, ToRGB, Generator
 # Placeholder for align_face if not provided by StyleGAN2 directly
 # This is usually from a separate utils file or specific alignment library
 # For now, I'll put a placeholder. You need to ensure 'utils.alignment' exists or provide the function.
-def align_face(filepath, predictor):
+def align_face_n(filepath, predictor):
     """
     Placeholder for face alignment function.
     You need to provide your actual implementation.
