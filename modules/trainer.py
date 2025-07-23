@@ -31,6 +31,8 @@ class LatentStyleTrainer:
         weight_decay=0.0,
         lambda_clip_init=1.0,
         lambda_l2_init=1.0,
+        scheduler_step_size=20,      
+        scheduler_gamma=0.5          
     ):
         self.device = device
         self.batch_size = batch_size
@@ -38,15 +40,11 @@ class LatentStyleTrainer:
         self.freeze_fn = freeze_fn
         self.clip_loss_fn = clip_directional_loss
         self.model_clip = model_clip
-        self.lr_generator = lr_generator
-        self.weight_decay = weight_decay
+
         self.model = {
             "generator_frozen": copy.deepcopy(generator).to(device).eval(),
             "generator_train": copy.deepcopy(generator).to(device).train()
         }
-
-        for param in self.model["generator_frozen"].parameters():
-            param.requires_grad = False
 
         self.lambda_t = torch.tensor(
             [math.log(lambda_clip_init), math.log(lambda_l2_init)],
@@ -55,7 +53,17 @@ class LatentStyleTrainer:
         )
 
         self.optimizer_lambda = torch.optim.Adam([self.lambda_t], lr=lr_lambda)
-        self.optimizer_generator = None
+        self.optimizer_generator = torch.optim.Adam(
+            self.model["generator_train"].parameters(),
+            lr=lr_generator,
+            weight_decay=weight_decay
+        )
+  
+        self.scheduler_generator = StepLR(
+            self.optimizer_generator,
+            step_size=scheduler_step_size,
+            gamma=scheduler_gamma
+        )
 
         self.text_target = text_features_target
         self.text_source = text_features_source
@@ -75,23 +83,11 @@ class LatentStyleTrainer:
             self.freeze_fn(
                 self.model['generator_train'],
                 self.model['generator_frozen'],
-                self.text_target
-            )
-  
-            self.optimizer_generator = torch.optim.Adam(
-                filter(lambda p: p.requires_grad, self.model["generator_train"].parameters()),
-                lr=self.lr_generator, 
-                weight_decay=self.weight_decay 
-            )
-        else: 
-             self.optimizer_generator = torch.optim.Adam(
-                self.model["generator_train"].parameters(), 
-                lr=self.lr_generator,
-                weight_decay=self.weight_decay
+                self.text_target,
+                top_k=10
             )
 
-
-        for epoch in range(epochs):
+        for epoch in range(epochs)+1:
             torch.cuda.empty_cache()
             self.optimizer_generator.zero_grad()
             self.optimizer_lambda.zero_grad()
@@ -100,45 +96,42 @@ class LatentStyleTrainer:
                 self.freeze_fn(
                     self.model['generator_train'],
                     self.model['generator_frozen'],
-                    self.text_target
-                )
-
-                self.optimizer_generator = torch.optim.Adam(
-                    filter(lambda p: p.requires_grad, self.model["generator_train"].parameters()),
-                    lr=self.lr_generator,
-                    weight_decay=self.weight_decay
+                    self.text_target,
+                    top_k=10
                 )
 
             latent_w = self.sample_latent_w(seed=seed)
 
+  
             generated_img_frozen, _ = self.model['generator_frozen']([latent_w], input_is_latent=True, randomize_noise=False)
             generated_img_style, _ = self.model['generator_train']([latent_w], input_is_latent=True, randomize_noise=False)
 
             if reclassify:
-               img = (generated_img_frozen[0].detach().cpu().clamp(-1, 1) + 1) / 2
-               img_pil = Image.fromarray((img.permute(1, 2, 0).numpy() * 255).astype(np.uint8))
-               source_class = clip_classification(img_pil, text_features_cat)
-               text_source_clp = clip.tokenize([source_class]).to(self.device)
-               with torch.no_grad():
-                   self.text_source = self.model_clip.encode_text(text_source_clp)
-                   self.text_source = self.text_source / self.text_source.norm(dim=-1, keepdim=True)
+                img = (generated_img_frozen[0].detach().cpu().clamp(-1, 1) + 1) / 2
+                img_pil = Image.fromarray((img.permute(1, 2, 0).numpy() * 255).astype(np.uint8))
+                source_class = clip_classification(img_pil, text_features_cat)  # <-- Define externally
+                text_source_clp = clip.tokenize([source_class]).to(self.device)
+                with torch.no_grad():
+                    self.text_source = self.model_clip.encode_text(text_source_clp)
+                    self.text_source = self.text_source / self.text_source.norm(dim=-1, keepdim=True)
 
-            lambda_clip_val = torch.exp(self.lambda_t[0])
-            lambda_l2_val = torch.exp(self.lambda_t[1])
+            lambda_clip = torch.exp(self.lambda_t[0])
+            lambda_l2 = torch.exp(self.lambda_t[1])
 
-            clip_loss_val = self.clip_loss_fn(generated_img_frozen, generated_img_style, self.text_source, self.text_target)
-            l2_loss_val = F.mse_loss(generated_img_style, generated_img_frozen)
-            loss_total = lambda_clip_val * clip_loss_val + lambda_l2_val * l2_loss_val
+            clip_loss = self.clip_loss_fn(generated_img_frozen, generated_img_style, self.text_source, self.text_target)
+            l2_loss = F.mse_loss(generated_img_style, generated_img_frozen)
+            loss_total = lambda_clip * clip_loss + lambda_l2 * l2_loss
 
             loss_total.backward()
             self.optimizer_generator.step()
             self.optimizer_lambda.step()
+            self.scheduler_generator.step()  
 
-            self.losses['l2'].append(l2_loss_val.item())
-            self.losses['clip'].append(clip_loss_val) # clip_loss_val is already a scalar from .item() in CLIPDirectionalLoss
+            self.losses['l2'].append(l2_loss.item())
+            self.losses['clip'].append(clip_loss)
             self.losses['all'].append(loss_total.item())
 
-            print(f"[{epoch}/{epochs}] Loss: {loss_total.item():.4f} | CLIP: {clip_loss_val:.4f} | L2: {l2_loss_val.item():.4f}")
+            print(f"[{epoch}/{epochs}] Loss: {loss_total.item():.4f} | CLIP: {clip_loss:.4f} | L2: {l2_loss.item():.4f}")
 
             if epoch % 10 == 0:
                 self.visualize_images(generated_img_frozen, generated_img_style, epoch)

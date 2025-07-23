@@ -10,11 +10,9 @@ import dlib
 from torchvision import transforms 
 from modules.losses import CLIPLoss 
 import re
-from modules.stylegan_arch.model import StyledConv, ToRGB, Generator
 
 
 def freeze_layers_adaptive(model_train, model_frozen, text_target_features, k=5, auto_layer_iters=3, device='cuda'):
-
     batch_size_temp = 2
     latent_dim = model_frozen.style_dim
 
@@ -23,87 +21,44 @@ def freeze_layers_adaptive(model_train, model_frozen, text_target_features, k=5,
         latent_w_temp = model_frozen.style(latent_z_temp)
     latent_w_plus_temp = latent_w_temp.unsqueeze(1).repeat(1, model_frozen.n_latent, 1)
 
- 
-    w_codes_optimizable = latent_w_plus_temp.clone().detach().requires_grad_(True)
-    w_optim_selection = torch.optim.Adam([w_codes_optimizable], lr=0.01)
+    latent_tensor= torch.Tensor(latent_w_plus_temp.cpu().detach().numpy()).to(device)
+    latent_tensor.requires_grad = True
 
+    fl_optimizer = torch.optim.Adam([latent_tensor], lr=0.01)
 
     clip_loss_for_freezing = CLIPLoss(stylegan_size=model_train.size) 
 
     for i_iter in range(auto_layer_iters):
-        w_optim_selection.zero_grad()
-        generated_for_selection, _ = model_train([w_codes_optimizable], input_is_latent=True)
+        fl_optimizer.zero_grad()
+        generated_img_fl, _ = model_train([latent_tensor], input_is_latent=True)
  
         selection_loss = clip_loss_for_freezing(generated_for_selection, text_target_features)
         selection_loss.backward()
-        w_optim_selection.step()
+        fl_optimizer.step()
 
-    layer_weights = torch.abs(w_codes_optimizable - latent_w_plus_temp).mean(dim=-1).mean(dim=0)
-    chosen_layer_idx = torch.topk(layer_weights, k)[1].cpu().numpy()
+    involved_layers = torch.abs(latent_tensor - latent_w_plus).mean(dim=-1).mean(dim=0)
+    used_layers = torch.topk(involved_layers, k)[1].cpu().numpy()
 
     all_children = list(model_train.children())
-    potential_layers = []
+    potential_layers = [
+        all_children[2],  
+        all_children[3]   
+    ]
+    potential_layers.extend(list(all_children[4]))
 
-    named_modules_list = [(name, module) for name, module in model_train.named_modules()]
-    
-    w_plus_module_map = []
+    used_modules = [potential_layers[idx] for idx in used_layers]
 
-    w_plus_module_map.append((0, 'conv1'))
-    w_plus_module_map.append((1, 'to_rgb1'))
-
-    prefix_map = {
-        0: 'conv1',
-        1: 'to_rgb1'
-    }
-
-    named_modules_dict = dict(model_train.named_modules())
-    
-    potential_style_modules = []
-    
-    if 'conv1' in named_modules_dict:
-        potential_style_modules.append(named_modules_dict['conv1'])
-    if 'to_rgb1' in named_modules_dict:
-        potential_style_modules.append(named_modules_dict['to_rgb1'])
-        
-    for name, module in named_modules_dict.items():
-        if re.match(r'convs\.\d+', name) or re.match(r'to_rgbs\.\d+', name):
-            if isinstance(module, (torch.nn.ModuleList, torch.nn.Sequential)):
-                for sub_name, sub_module in module.named_children():
-                    if isinstance(sub_module, (StyledConv, ToRGB)):
-                        potential_style_modules.append(sub_module)
-            elif isinstance(module, (StyledConv, ToRGB)): 
-                potential_style_modules.append(module)
-
-    w_idx_to_module_names = {}
-    
-    # W+ index 0
-    w_idx_to_module_names[0] = ['conv1']
-    # W+ index 1
-    w_idx_to_module_names[1] = ['to_rgb1']
-
-   
-    for i_stage in range(model_train.n_latent // 2 - 1): 
-
-        w_idx_first_conv = i_stage * 2 + 2
-        w_idx_to_module_names.setdefault(w_idx_first_conv, []).append(f'convs.{i_stage*2}')
-        
-        w_idx_second_conv = i_stage * 2 + 3
-        w_idx_to_module_names.setdefault(w_idx_second_conv, []).append(f'convs.{i_stage*2+1}')
-        w_idx_to_module_names.setdefault(w_idx_second_conv, []).append(f'to_rgbs.{i_stage}')
-
-    actual_modules_to_unfreeze_base_names = set()
-    for w_idx in chosen_layer_idx:
-        if w_idx in w_idx_to_module_names:
-            for name_prefix in w_idx_to_module_names[w_idx]:
-                actual_modules_to_unfreeze_base_names.add(name_prefix)
+    named_modules = list(model_train.named_modules())
+    used_layer_names = [name for name, module in named_modules if module in used_modules] 
 
     for param in model_train.parameters():
         param.requires_grad = False
 
     for name, param in model_train.named_parameters():
-        if any(name.startswith(base_name) for base_name in actual_modules_to_unfreeze_base_names):
-            param.requires_grad = True
-    
+        if any(name.startswith(used_name) for used_name in used_layer_names):
+             param.requires_grad = True
+
+
 
 def generate_visualize_and_save(
     trainer,
