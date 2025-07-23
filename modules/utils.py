@@ -36,7 +36,7 @@ def freeze_layers_adaptive(model_train, model_frozen, text_target_features, k=5,
         selection_loss.backward()
         fl_optimizer.step()
 
-    involved_layers = torch.abs(latent_tensor - latent_w_plus).mean(dim=-1).mean(dim=0)
+    involved_layers = torch.abs(latent_tensor - latent_w_plus_temp).mean(dim=-1).mean(dim=0)
     used_layers = torch.topk(involved_layers, k)[1].cpu().numpy()
 
     all_children = list(model_train.children())
