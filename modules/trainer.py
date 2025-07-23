@@ -88,7 +88,7 @@ class LatentStyleTrainer:
                 top_k=10
             )
 
-        for epoch in range(epochs)+1:
+        for epoch in range(1,epochs+1):
             torch.cuda.empty_cache()
             self.optimizer_generator.zero_grad()
             self.optimizer_lambda.zero_grad()
