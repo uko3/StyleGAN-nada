@@ -32,7 +32,7 @@ def freeze_layers_adaptive(model_train, model_frozen, text_target_features, k=5,
         fl_optimizer.zero_grad()
         generated_img_fl, _ = model_train([latent_tensor], input_is_latent=True)
  
-        selection_loss = clip_loss_for_freezing(generated_for_selection, text_target_features)
+        selection_loss = clip_loss_for_freezing(generated_img_fl, text_target_features)
         selection_loss.backward()
         fl_optimizer.step()
 
