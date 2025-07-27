@@ -8,7 +8,7 @@ import math
 from sklearn.decomposition import PCA
 import dlib 
 from torchvision import transforms 
-#from modules.losses import CLIPLoss 
+from modules.losses import CLIPLoss 
 import re
 
 
