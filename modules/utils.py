@@ -110,3 +110,7 @@ def generate_visualize_and_save(
 
     print(f"Saved styled images to: {save_dir}")
 
+def run_on_batch(inputs, model_psp, device): # Add device as argument
+    """Runs the pSp model on a batch of data."""
+    images, latents = model_psp(inputs.to(device).float(), randomize_noise=False, return_latents=True)
+    return images, latents
