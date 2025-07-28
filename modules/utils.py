@@ -3,6 +3,7 @@ from sklearn.decomposition import PCA
 import dlib 
 from torchvision import transforms 
 import re
+import os
 
 def generate_visualize_and_save(
     trainer,
