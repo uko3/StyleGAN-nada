@@ -3,6 +3,7 @@ from sklearn.decomposition import PCA
 from torchvision import transforms 
 from modules.losses import CLIPLoss 
 import re
+import torch
 
 def freeze_layers_adaptive(model_train, model_frozen, text_target_features, k=5, auto_layer_iters=3, device='cuda'):
     batch_size_temp = 2
