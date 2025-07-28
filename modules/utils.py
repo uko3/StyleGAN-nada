@@ -6,6 +6,7 @@ import re
 import os
 import torch
 from PIL import Image
+import matplotlib.pyplot as plt
 
 def generate_visualize_and_save(
     trainer,
