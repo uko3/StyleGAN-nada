@@ -4,6 +4,7 @@ import dlib
 from torchvision import transforms 
 import re
 import os
+import torch
 
 def generate_visualize_and_save(
     trainer,
