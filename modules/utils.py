@@ -5,6 +5,7 @@ from torchvision import transforms
 import re
 import os
 import torch
+from PIL import Image
 
 def generate_visualize_and_save(
     trainer,
