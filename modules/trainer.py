@@ -24,6 +24,7 @@ class LatentStyleTrainer:
         text_features_target,
         freeze_fn,
         clip_directional_loss,
+        clip_classification,
         latent_dim,
         batch_size,
         device,
@@ -40,6 +41,7 @@ class LatentStyleTrainer:
         self.latent_dim = latent_dim
         self.freeze_fn = freeze_fn
         self.clip_loss_fn = clip_directional_loss
+        self.clip_classification = clip_classification
         self.model_clip = model_clip
 
         self.model = {
@@ -102,7 +104,6 @@ class LatentStyleTrainer:
                 )
 
             latent_w = self.sample_latent_w(seed=seed)
-
   
             generated_img_frozen, _ = self.model['generator_frozen']([latent_w], input_is_latent=True, randomize_noise=False)
             generated_img_style, _ = self.model['generator_train']([latent_w], input_is_latent=True, randomize_noise=False)
