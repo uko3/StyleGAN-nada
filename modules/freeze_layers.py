@@ -72,7 +72,7 @@ def freeze_layers(model_train, freeze_mapping=True, freeze_initial_blocks=2, fre
                 param.requires_grad = False
 
 
-def freeze_layers_adaptive_fine_grained(model_train, model_frozen, text, freeze_conv_weights=True, freeze_to_rgb_weights=True, k = 5):
+def freeze_layers_adaptive_fine_grained(model_train, model_frozen, text, freeze_conv_weights=True, freeze_to_rgb_weights=True, k = 5, device='cuda'):
     batch_size = 2
     latent_dim = 512
     latent_z = torch.randn(batch_size, latent_dim, device=device)
@@ -138,7 +138,7 @@ def freeze_layers_adaptive_fine_grained(model_train, model_frozen, text, freeze_
                     param.requires_grad = True
 
 
-def freeze_layers_adaptive_fine_tune(model_train, model_frozen, text, epochs=3, k=6):
+def freeze_layers_adaptive_fine_tune(model_train, model_frozen, text, epochs=3, k=6, device='cuda'):
     generator_observation = copy.deepcopy(model_train)
     generator_observation.to(device)
     generator_observation.train()
