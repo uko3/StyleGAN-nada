@@ -85,13 +85,13 @@ def freeze_layers_adaptive_fine_grained(model_train, model_frozen, text, freeze_
     latent_tensor.requires_grad = True
 
     fl_optimizer = torch.optim.Adam([latent_tensor], lr=0.01) 
-
+    clip_loss_for_freezing = CLIPLoss(stylegan_size=model_train.size)
     auto_layer_iters = 3
 
     for _ in range(auto_layer_iters):
         fl_optimizer.zero_grad()
         generated_img_fl, _ = model_train([latent_tensor], input_is_latent=True)
-        loss_fl = clip_loss(generated_img_fl, text)
+        loss_fl = clip_loss_for_freezing(generated_img_fl, text)
         loss_fl.backward()
         fl_optimizer.step()
 
@@ -150,6 +150,7 @@ def freeze_layers_adaptive_fine_tune(model_train, model_frozen, text, epochs=3, 
     used_layer_names = [name for name, module in named_modules.items() if module in potential_layers]
 
     optimizer = torch.optim.Adam(generator_observation.parameters(), lr=0.01)
+    clip_loss_for_freezing = CLIPLoss(stylegan_size=model_train.size)
     val_par = {}
 
     batch_size = 2
@@ -162,7 +163,7 @@ def freeze_layers_adaptive_fine_tune(model_train, model_frozen, text, epochs=3, 
         optimizer.zero_grad()
         generated_img, _ = generator_observation([latent_w], input_is_latent=True, randomize_noise = False)
 
-        loss = clip_loss(generated_img, text)
+        loss = clip_loss_for_freezing(generated_img, text)
         loss.backward()
         optimizer.step()
 
