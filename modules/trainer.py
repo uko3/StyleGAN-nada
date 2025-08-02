@@ -138,7 +138,7 @@ class LatentStyleTrainer:
             print(f"[{epoch}/{epochs}] Loss: {loss_total.item():.4f} | CLIP: {clip_loss:.4f} | L2: {l2_loss.item():.4f}")
             print(loss_total.item(), clip_loss, l2_loss.item(), lambda_clip, lambda_l2)
             
-            if epoch % 1 == 0:
+            if epoch % 10 == 0:
                 self.visualize_images(generated_img_frozen, generated_img_style, epoch)
             
 
