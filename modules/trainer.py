@@ -113,7 +113,7 @@ class LatentStyleTrainer:
             if reclassify:
                 img = (generated_img_frozen[0].detach().cpu().clamp(-1, 1) + 1) / 2
                 img_pil = Image.fromarray((img.permute(1, 2, 0).numpy() * 255).astype(np.uint8))
-                source_class = self.clip_classifier(img_pil, self.text_features_cat)  # <-- Define externally
+                source_class = self.clip_classifier(img_pil, self.text_features_cat)  
                 text_source_clp = clip.tokenize([source_class]).to(self.device)
                 with torch.no_grad():
                     self.text_source = self.model_clip.encode_text(text_source_clp)
@@ -136,10 +136,11 @@ class LatentStyleTrainer:
             self.losses['all'].append(loss_total.item())
 
             print(f"[{epoch}/{epochs}] Loss: {loss_total.item():.4f} | CLIP: {clip_loss:.4f} | L2: {l2_loss.item():.4f}")
-
-            if epoch % 10 == 0:
+            print(loss_total.item(), clip_loss, l2_loss.item(), lambda_clip, lambda_l2)
+            
+            if epoch % 1 == 0:
                 self.visualize_images(generated_img_frozen, generated_img_style, epoch)
-
+            
 
     def plot_losses(self):
         plt.figure(figsize=(7, 4))
