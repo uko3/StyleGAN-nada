@@ -28,6 +28,7 @@ class LatentStyleTrainer:
         batch_size,
         device,
         clip_classifier=None,
+        text_features_cat=None,
         lr_generator=0.001,
         lr_lambda=0.2,
         weight_decay=0.0,
@@ -42,6 +43,7 @@ class LatentStyleTrainer:
         self.freeze_fn = freeze_fn
         self.clip_loss_fn = clip_directional_loss
         self.clip_classifier = clip_classifier
+        self.text_features_cat = text_features_cat
         self.model_clip = model_clip
 
         self.model = {
@@ -111,7 +113,7 @@ class LatentStyleTrainer:
             if reclassify:
                 img = (generated_img_frozen[0].detach().cpu().clamp(-1, 1) + 1) / 2
                 img_pil = Image.fromarray((img.permute(1, 2, 0).numpy() * 255).astype(np.uint8))
-                source_class = self.clip_classifier(img_pil, text_features_cat)  # <-- Define externally
+                source_class = self.clip_classifier(img_pil, self.text_features_cat)  # <-- Define externally
                 text_source_clp = clip.tokenize([source_class]).to(self.device)
                 with torch.no_grad():
                     self.text_source = self.model_clip.encode_text(text_source_clp)
