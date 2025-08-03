@@ -43,7 +43,7 @@ class CLIPDirectionalLoss(torch.nn.Module):
         enc_images = image_features_style - image_features_frozen
         enc_texts = text_features_target_norm - text_features_source_norm
 
-        cos_sim_val = F.cosine_similarity(enc_images, enc_texts, dim=-1).clamp(-1, 1).mean().item()
+        cos_sim_val = F.cosine_similarity(enc_images, enc_texts, dim=-1).clamp(-1, 1).mean()
         # angle_deg = torch.acos(torch.tensor(cos_sim_val, device=img_styled.device)).item() * 180 / math.pi
         # print(f"Cosine sim: {cos_sim_val:.4f}", f"Angle between directions: {angle_deg:.2f}°") # Для отладки
 
