@@ -91,7 +91,9 @@ class LatentStyleTrainer:
                 self.text_target,
                 top_k=10
             )
-
+        trainable_params = [name for name, param in self.model['generator_train'].named_parameters() if param.requires_grad]
+        print("Trainable params:", trainable_params)
+        
         for epoch in range(1,epochs+1):
             torch.cuda.empty_cache()
             self.optimizer_generator.zero_grad()
