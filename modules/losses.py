@@ -59,8 +59,8 @@ class CLIPDirectionalLoss(torch.nn.Module):
         img_style_np_batch = [(img.detach().cpu().permute(1, 2, 0).numpy() * 255).astype(np.uint8) for img in img_styled]
         img_frozen_np_batch = [(img.detach().cpu().permute(1, 2, 0).numpy() * 255).astype(np.uint8) for img in img_frozen]
 
-        image_style_clip_input_batch = torch.cat([self.preprocess(Image.fromarray(img_np)).unsqueeze(0).to(device) for img_np in img_style_np_batch])
-        image_frozen_clip_input_batch = torch.cat([self.preprocess(Image.fromarray(img_np)).unsqueeze(0).to(device) for img_np in img_frozen_np_batch])
+        image_style_clip_input_batch = torch.cat([self.preprocess(Image.fromarray(img_np)).unsqueeze(0).to("cuda") for img_np in img_style_np_batch])
+        image_frozen_clip_input_batch = torch.cat([self.preprocess(Image.fromarray(img_np)).unsqueeze(0).to("cuda") for img_np in img_frozen_np_batch])
 
         with torch.no_grad():
             image_features_style = self.model.encode_image(image_style_clip_input_batch)
