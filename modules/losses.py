@@ -21,7 +21,7 @@ class CLIPLoss(torch.nn.Module):
         loss = 1 - similarity.mean()
         return loss
 
-class CLIPDirectionalLoss_1(torch.nn.Module):
+class CLIPDirectionalLoss(torch.nn.Module):
     def __init__(self):
         super(CLIPDirectionalLoss, self).__init__()
         self.model, self.preprocess = clip.load("ViT-B/32", device="cuda")
@@ -50,7 +50,7 @@ class CLIPDirectionalLoss_1(torch.nn.Module):
         loss_clip = 1 - cos_sim_val
         return loss_clip
 
-class CLIPDirectionalLoss(torch.nn.Module):
+class CLIPDirectionalLoss_2(torch.nn.Module):
     def __init__(self):
         super(CLIPDirectionalLoss, self).__init__()
         self.model, self.preprocess = clip.load("ViT-B/32", device="cuda")
