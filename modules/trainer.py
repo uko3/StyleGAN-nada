@@ -139,7 +139,7 @@ class LatentStyleTrainer:
             self.losses['all'].append(loss_total.item())
 
             print(f"[{epoch}/{epochs}] Loss: {loss_total.item():.4f} | CLIP: {clip_loss:.4f} | L2: {l2_loss.item():.4f}", end = ' ')
-            print(loss_total.item(), clip_loss, l2_loss.item(), lambda_clip.item(), lambda_l2.item())
+            print(loss_total.item(), clip_loss.item(), l2_loss.item(), lambda_clip.item(), lambda_l2.item())
             
             if epoch % 10 == 0:
                 self.visualize_images(generated_img_frozen, generated_img_style, epoch)
