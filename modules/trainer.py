@@ -121,7 +121,8 @@ class LatentStyleTrainer:
                     self.text_source = self.model_clip.encode_text(text_source_clp)
                     self.text_source = self.text_source / self.text_source.norm(dim=-1, keepdim=True)
 
-            lambda_clip = torch.exp(self.lambda_t[0])
+            #lambda_clip = torch.exp(self.lambda_t[0])
+            lambda_clip = torch.nn.functional.softplus(self.lambda_t[0]) + 1e-6
             lambda_l2 = torch.exp(self.lambda_t[1])
 
             clip_loss = self.clip_loss_fn(generated_img_frozen, generated_img_style, self.text_source, self.text_target)

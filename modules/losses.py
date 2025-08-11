@@ -49,32 +49,3 @@ class CLIPDirectionalLoss(torch.nn.Module):
 
         loss_clip = 1 - cos_sim_val
         return loss_clip
-
-class CLIPDirectionalLoss_2(torch.nn.Module):
-    def __init__(self):
-        super(CLIPDirectionalLoss, self).__init__()
-        self.model, self.preprocess = clip.load("ViT-B/32", device="cuda")
-
-    def forward(self, img_frozen, img_styled, text_features_source_norm, text_features_target_norm):
-        img_style_np_batch = [(img.detach().cpu().permute(1, 2, 0).numpy() * 255).astype(np.uint8) for img in img_styled]
-        img_frozen_np_batch = [(img.detach().cpu().permute(1, 2, 0).numpy() * 255).astype(np.uint8) for img in img_frozen]
-
-        image_style_clip_input_batch = torch.cat([self.preprocess(Image.fromarray(img_np)).unsqueeze(0).to("cuda") for img_np in img_style_np_batch])
-        image_frozen_clip_input_batch = torch.cat([self.preprocess(Image.fromarray(img_np)).unsqueeze(0).to("cuda") for img_np in img_frozen_np_batch])
-
-        with torch.no_grad():
-            image_features_style = self.model.encode_image(image_style_clip_input_batch)
-            image_features_frozen = self.model.encode_image(image_frozen_clip_input_batch)
-
-        image_features_style = image_features_style / image_features_style.norm(dim=-1, keepdim=True)
-        image_features_frozen = image_features_frozen / image_features_frozen.norm(dim=-1, keepdim=True)
-
-        enc_images = image_features_style - image_features_frozen
-        enc_texts = text_features_target_norm - text_features_source_norm
-
-        cos_sim_val = F.cosine_similarity(enc_images, enc_texts, dim=-1).clamp(-1, 1).mean()
-        # angle_deg = torch.acos(torch.tensor(cos_sim_val, device=img_styled.device)).item() * 180 / math.pi
-        # print(f"Cosine sim: {cos_sim_val:.4f}", f"Angle between directions: {angle_deg:.2f}°") # Для отладки
-
-        loss_clip = 1 - cos_sim_val
-        return loss_clip
