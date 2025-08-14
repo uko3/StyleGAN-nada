@@ -3,6 +3,7 @@
 ## About the Project
 
 This project provides a complete pipeline for image inversion and stylization using custom-trained StyleGAN-NADA generators. It automates model setup, preprocessing, encoding, and style transfer using CLIP-guided latent manipulation.
+![](img/stylegan_nada.png)
 
 ---
 
@@ -65,6 +66,9 @@ Go to:
 - All required pre-trained models will be downloaded automatically.
 - **Important**: Make sure to update the Google Drive IDs in the `stylegan_nada_generators` dictionary to load your custom generators.
 
+### Examples:
+![](img/styles_img.png)
+
 ---
 
 ## Preparing Images for Inversion
@@ -73,6 +77,8 @@ Go to:
 
 
 2. You can drag and drop images directly into the Colab file panel.
+
+![](img/inferens_real_img.png)
 
 ---
 
