@@ -3,6 +3,7 @@
 ## About the Project
 
 This project provides a complete pipeline for image inversion and stylization using custom-trained StyleGAN-NADA generators. It automates model setup, preprocessing, encoding, and style transfer using CLIP-guided latent manipulation.
+
 ![](img/stylegan_nada.png)
 
 ---
