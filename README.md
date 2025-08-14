@@ -51,8 +51,8 @@ If you're using `.ipynb` notebooks:
 
 - Create a new notebook in Google Colab
 - Copy the content of `main.py` or use the provided:
-  - `01_Train_StyleGAN_NADA.ipynb`https://github.com/uko3/StyleGAN-nada/tree/main/notebooks/01_Train_StyleGAN_NADA.ipynb
-  - `02_Inference_StyleGAN_NADA.ipynb`
+  - `01_Train_StyleGAN_NADA.ipynb`[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/uko3/StyleGAN-nada/tree/main/notebooks/01_Train_StyleGAN_NADA.ipynb)
+  - `02_Inference_StyleGAN_NADA.ipynb`[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/uko3/StyleGAN-nada/tree/main/notebooks/02_Inference_StyleGAN_NADA.ipynb)
 
 ### 2. Run all cells
 
