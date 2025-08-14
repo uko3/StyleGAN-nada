@@ -16,6 +16,9 @@ from torch.optim.lr_scheduler import StepLR
 warnings.filterwarnings("ignore", message="conv2d_gradfix not supported on PyTorch.*")
 
 class LatentStyleTrainer:
+    """
+    Class for fine-tuning a style generator using CLIP directional losses.
+    """
     def __init__(
         self,
         generator,
@@ -37,6 +40,7 @@ class LatentStyleTrainer:
         scheduler_step_size=20,      
         scheduler_gamma=0.5          
     ):
+        # Save parameters and initialize generators
         self.device = device
         self.batch_size = batch_size
         self.latent_dim = latent_dim
@@ -46,18 +50,22 @@ class LatentStyleTrainer:
         self.text_features_cat = text_features_cat
         self.model_clip = model_clip
 
+        # Create copies of the generator — one frozen, one trainable
         self.model = {
             "generator_frozen": copy.deepcopy(generator).to(device).eval(),
             "generator_train": copy.deepcopy(generator).to(device).train()
         }
 
+        # Logarithms of weights for CLIP and L2 losses
         self.lambda_t = torch.tensor(
             [math.log(lambda_clip_init), math.log(lambda_l2_init)],
             device=device,
             requires_grad=True
         )
 
-        self.optimizer_lambda = torch.optim.Adam([self.lambda_t], lr=lr_lambda)
+        # Optimizer for loss weights
+        self.optimizer_lambda = torch.optim.Adam([self.lambda_t], lr=lr_lambda) 
+        # Optimizer for trainable generator
         self.optimizer_generator = torch.optim.Adam(
             self.model["generator_train"].parameters(),
             lr=lr_generator,
@@ -76,6 +84,9 @@ class LatentStyleTrainer:
         self.losses = {'l2': [], 'clip': [], 'all': []}
 
     def sample_latent_w(self, seed=None):
+        """
+        Generate latent vector w from random z.
+        """
         if seed is not None:
             torch.manual_seed(seed)
         latent_z = torch.randn(self.batch_size, self.latent_dim, device=self.device)
@@ -84,6 +95,10 @@ class LatentStyleTrainer:
         return latent_w
 
     def train(self, epochs, freeze_each_epoch=True, reclassify=False, seed=None):
+        """
+        Main training loop for the generator.
+        """
+        # Freeze layers once if needed
         if not freeze_each_epoch:
             self.freeze_fn(
                 self.model['generator_train'],
@@ -91,8 +106,6 @@ class LatentStyleTrainer:
                 self.text_target,
                 top_k=10
             )
-        trainable_params = [name for name, param in self.model['generator_train'].named_parameters() if param.requires_grad]
-        print("Trainable params:", trainable_params)
         
         for epoch in range(1,epochs+1):
             torch.cuda.empty_cache()
@@ -112,6 +125,7 @@ class LatentStyleTrainer:
             generated_img_frozen, _ = self.model['generator_frozen']([latent_w], input_is_latent=True, randomize_noise=False)
             generated_img_style, _ = self.model['generator_train']([latent_w], input_is_latent=True, randomize_noise=False)
 
+            # Re-define text source via classification
             if reclassify:
                 img = (generated_img_frozen[0].detach().cpu().clamp(-1, 1) + 1) / 2
                 img_pil = Image.fromarray((img.permute(1, 2, 0).numpy() * 255).astype(np.uint8))
@@ -121,7 +135,7 @@ class LatentStyleTrainer:
                     self.text_source = self.model_clip.encode_text(text_source_clp)
                     self.text_source = self.text_source / self.text_source.norm(dim=-1, keepdim=True)
 
-            lambda_clip1 = torch.exp(self.lambda_t[0])
+            # Adaptive loss weights
             lambda_clip = torch.nn.functional.softplus(self.lambda_t[0]) + 1e-6
             lambda_l2 = torch.exp(self.lambda_t[1])
 
@@ -139,13 +153,16 @@ class LatentStyleTrainer:
             self.losses['all'].append(loss_total.item())
 
             print(f"[{epoch}/{epochs}] Loss: {loss_total.item():.4f} | CLIP: {clip_loss:.4f} | L2: {l2_loss.item():.4f}", end = ' ')
-            print(loss_total.item(), clip_loss.item(), l2_loss.item(), lambda_clip.item(), lambda_clip1.item(), lambda_l2.item())
-            
+
+            # Visualization every 10 epochs
             if epoch % 10 == 0:
                 self.visualize_images(generated_img_frozen, generated_img_style, epoch)
             
 
     def plot_losses(self):
+        """
+        Plot training losses.
+        """
         plt.figure(figsize=(7, 4))
         plt.plot(self.losses['l2'], label='L2 Loss')
         plt.plot(self.losses['clip'], label='CLIP Directional Loss')
@@ -158,6 +175,9 @@ class LatentStyleTrainer:
         plt.show()
 
     def visualize_images(self, generated_img_frozen, generated_img_style, epoch):
+        """
+        Visualize generated images before and after training.
+        """
         batch_size = generated_img_frozen.size(0)
         plt.figure(figsize=(batch_size * 2, 4))
 
@@ -183,6 +203,9 @@ class LatentStyleTrainer:
 
     @torch.no_grad()
     def visualize_clip_directions(self, image_frozen, image_styled, text_target, text_source, preprocess):
+        """
+        Visualize CLIP embedding directions.
+        """    
         img_frozen = Image.fromarray(((image_frozen[0].detach().cpu().permute(1, 2, 0).numpy() * 0.5 + 0.5) * 255).astype(np.uint8))
         img_style = Image.fromarray(((image_styled[0].detach().cpu().permute(1, 2, 0).numpy() * 0.5 + 0.5) * 255).astype(np.uint8))
 
