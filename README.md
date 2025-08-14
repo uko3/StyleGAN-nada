@@ -53,7 +53,11 @@ If you're using `.ipynb` notebooks:
 - Copy the content of `main.py` or use the provided:
   - `01_Train_StyleGAN_NADA.ipynb`https://github.com/uko3/StyleGAN-nada/tree/main/notebooks/01_Train_StyleGAN_NADA.ipynb
   - `02_Inference_StyleGAN_NADA.ipynb`
+01_Train_StyleGAN_NADA.ipynb - A notebook for training the StyleGAN-NADA model.
 
+02_Inference_StyleGAN_NADA.ipynb - A notebook for generating images using a trained model.
+
+03_Experiments_StyleGAN_NADA.ipynb - A notebook with detailed analysis of the different freezing and optimization methods.
 ### 2. Run all cells
 
 Go to:  
