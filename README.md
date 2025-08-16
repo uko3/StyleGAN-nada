@@ -33,7 +33,7 @@ Our research explored several key aspects of the StyleGAN-NADA method:
 ---
 
 ### More details
-* Detailed report with experiments and conclusions: [Report StyleGAN-nada en.pdf](Report StyleGAN-nada en.pdf)
+* Detailed report with experiments and conclusions: [Report StyleGAN-nada en.pdf](/Report StyleGAN-nada en.pdf)
 
 ### Getting Started
 **Requirements**
@@ -62,4 +62,4 @@ After running all the cells:
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/uko3/StyleGAN-nada/tree/main/notebooks/02_Inference_StyleGAN_NADA.ipynb) `02_Inference_StyleGAN_NADA.ipynb`
 
 ### Conclusion
-We demonstrate that StyleGAN-NADA is a powerful framework for zero-shot generative image editing. With only a text prompt, the generator can be adapted to synthesize images in new domains — including fantastical or artistic styles — without requiring target data.
+Demonstrated that StyleGAN-NADA is a powerful framework for zero-shot generative image editing. With only a text prompt, the generator can be adapted to synthesize images in new domains — including fantastical or artistic styles — without requiring target data.
