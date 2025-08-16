@@ -55,7 +55,8 @@ class LatentStyleTrainer:
             "generator_frozen": copy.deepcopy(generator).to(device).eval(),
             "generator_train": copy.deepcopy(generator).to(device).train()
         }
-        print(math.log(lambda_clip_init))
+        print(lambda_clip_init, lambda_l2_init, math.log(lambda_clip_init), math.log(lambda_l2_init))
+        print(math.log(2.0), math.log(2.0))
         # Logarithms of weights for CLIP and L2 losses
         self.lambda_t = torch.tensor(
             [math.log(lambda_clip_init), math.log(lambda_l2_init)],
