@@ -69,6 +69,13 @@ Go to:
 
 ### Examples:
 ![](img/styles_img.png)
+![](img/styles_img1.png)
+![](img/styles_img2.png)
+![](img/styles_img3.png)
+![](img/styles_img4_1.png)
+![](img/styles_img4_12.png)
+![](img/styles_img5_22.png)
+![](img/styles_img6_14.png)
 
 ---
 
