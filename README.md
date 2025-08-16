@@ -69,13 +69,6 @@ Go to:
 
 ### Examples:
 ![](img/styles_img.png)
-![](img/styles_img1.png)
-![](img/styles_img2.png)
-![](img/styles_img3.png)
-![](img/styles_img4_1.png)
-![](img/styles_img4_12.png)
-![](img/styles_img5_22.png)
-![](img/styles_img6_14.png)
 
 ---
 
@@ -87,6 +80,17 @@ Go to:
 2. You can drag and drop images directly into the Colab file panel.
 
 ![](img/inferens_real_img.png)
+![](img/inferens_real_img0.png)
+![](img/inferens_real_img1_1.png)
+![](img/inferens_real_img1_2.png)
+![](img/inferens_real_img1_3.png)
+![](img/inferens_real_img1_4.png)
+![](img/inferens_real_img1_5.png)
+![](img/inferens_real_img1_6.png)
+![](img/inferens_real_img1_7.png)
+![](img/inferens_real_img1_8.png)
+![](img/inferens_real_img1_9.png)
+![](img/inferens_real_img1_10.png)
 
 ---
 
