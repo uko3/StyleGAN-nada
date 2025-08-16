@@ -81,13 +81,6 @@ Go to:
 
 ![](img/inferens_real_img.png)
 
-![](img/inferens_real_img1_1.png)
-
-![](img/inferens_real_img1_7.png)
-![](img/inferens_real_img1_8.png)
-![](img/inferens_real_img1_9.png)
-![](img/inferens_real_img1_10.png)
-
 ---
 
 ## How It Works
