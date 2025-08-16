@@ -154,7 +154,7 @@ class LatentStyleTrainer:
 
             print(f"[{epoch}/{epochs}] Loss: {loss_total.item():.4f} | CLIP: {clip_loss:.4f} | L2: {l2_loss.item():.4f}")
             print(lambda_clip, lambda_l2)
-            print(lambda_t[0].item(), lambda_t[1].item())
+            print(self.lambda_t[0].item(), self.lambda_t[1].item())
             print('-'*20)
             # Visualization every 10 epochs
             if epoch % 10 == 0:
