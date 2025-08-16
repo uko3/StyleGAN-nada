@@ -7,9 +7,15 @@ import torch
 import copy
 
 def freeze_layers_adaptive(model_train, model_frozen, text_target_features, k=5, auto_layer_iters=3, device='cuda'):
+    """
+    This function selects the top-k most "active" layers in a StyleGAN model,
+    which change the most when trying to match an image to a text description (via CLIP).
+    All other layers are frozen.
+    """
     batch_size_temp = 2
     latent_dim = model_frozen.style_dim
-
+    
+    # Generate random latent z vectors and convert them to w space.
     latent_z_temp = torch.randn(batch_size_temp, latent_dim, device=device)
     with torch.no_grad():
         latent_w_temp = model_frozen.style(latent_z_temp)
@@ -17,11 +23,13 @@ def freeze_layers_adaptive(model_train, model_frozen, text_target_features, k=5,
 
     latent_tensor= torch.Tensor(latent_w_plus_temp.cpu().detach().numpy()).to(device)
     latent_tensor.requires_grad = True
-
+    
+    # Optimizer over w+.
     fl_optimizer = torch.optim.Adam([latent_tensor], lr=0.01)
 
-    clip_loss_for_freezing = CLIPLoss(stylegan_size=model_train.size) 
-
+    clip_loss_for_freezing = CLIPLoss(stylegan_size=model_train.size)
+    
+    # Optimize w+ for auto_layer_iters steps.
     for i_iter in range(auto_layer_iters):
         fl_optimizer.zero_grad()
         generated_img_fl, _ = model_train([latent_tensor], input_is_latent=True)
@@ -32,48 +40,65 @@ def freeze_layers_adaptive(model_train, model_frozen, text_target_features, k=5,
 
     involved_layers = torch.abs(latent_tensor - latent_w_plus_temp).mean(dim=-1).mean(dim=0)
     used_layers = torch.topk(involved_layers, k)[1].cpu().numpy()
-
+    
+    # Extract potential generator layers to unfreeze.
     all_children = list(model_train.children())
     potential_layers = [
         all_children[2],  
         all_children[3]   
     ]
     potential_layers.extend(list(all_children[4]))
-
+    
+    # Modules to be unfrozen.
     used_modules = [potential_layers[idx] for idx in used_layers]
-
+    
+    # Names of layers to unfreeze.
     named_modules = list(model_train.named_modules())
-    used_layer_names = [name for name, module in named_modules if module in used_modules] 
-
+    used_layer_names = [name for name, module in named_modules if module in used_modules]
+    
+    # Freeze all parameters first.
     for param in model_train.parameters():
         param.requires_grad = False
-
+        
+    # Unfreeze only the selected layers.
     for name, param in model_train.named_parameters():
         if any(name.startswith(used_name) for used_name in used_layer_names):
              param.requires_grad = True
 
 
 def freeze_layers(model_train, freeze_mapping=True, freeze_initial_blocks=2, freeze_torgb=True):
+    """
+    Simple version of StyleGAN layer freezing — can freeze mapping, initial blocks, and toRGB layers.
+    """    
     for name, param in model_train.named_parameters():
-        param.requires_grad = True  
-
+        
+        # Unfreeze all parameters by defaul
+        param.requires_grad = True
+        
+        # Freeze mapping network
         if freeze_mapping and name.startswith("style."):
             param.requires_grad = False
-
+            
+        # Freeze initial blocks
         if freeze_initial_blocks >= 1:
             if name.startswith("conv1.") or name.startswith("to_rgb1."):
                 param.requires_grad = False
-
+                
+        # Freeze subsequent blocks depending on parameter
         for i in range(freeze_initial_blocks - 1):
             if name.startswith(f"convs.{i}.") or name.startswith(f"to_rgbs.{i}."):
                 param.requires_grad = False
-
+                
+        # Freeze all toRGB layers
         if freeze_torgb:
             if name.startswith("to_rgb1.") or name.startswith("to_rgbs."):
                 param.requires_grad = False
 
 
 def freeze_layers_adaptive_fine_grained(model_train, model_frozen, text, freeze_conv_weights=True, freeze_to_rgb_weights=True, k = 5, device='cuda'):
+    """
+    More fine-grained version of freeze_layers_adaptive — allows separate control over freezing conv and toRGB weights.
+    """
     batch_size = 2
     latent_dim = 512
     latent_z = torch.randn(batch_size, latent_dim, device=device)
@@ -81,14 +106,16 @@ def freeze_layers_adaptive_fine_grained(model_train, model_frozen, text, freeze_
         latent_w = model_frozen.style(latent_z)
 
     latent_w_plus = latent_w.unsqueeze(1).repeat(1, model_frozen.n_latent, 1)
-
+    
+    #Create trainable tensor
     latent_tensor = torch.Tensor(latent_w_plus.cpu().detach().numpy()).to(device)
     latent_tensor.requires_grad = True
 
     fl_optimizer = torch.optim.Adam([latent_tensor], lr=0.01) 
     clip_loss_for_freezing = CLIPLoss(stylegan_size=model_train.size)
     auto_layer_iters = 3
-
+    
+    #Identify important layers via optimization
     for _ in range(auto_layer_iters):
         fl_optimizer.zero_grad()
         generated_img_fl, _ = model_train([latent_tensor], input_is_latent=True)
@@ -98,7 +125,8 @@ def freeze_layers_adaptive_fine_grained(model_train, model_frozen, text, freeze_
 
     involved_layers = torch.abs(latent_tensor - latent_w_plus).mean(dim=-1).mean(dim=0)
     used_layers = torch.topk(involved_layers, k)[1].cpu().numpy()
-
+    
+    #Build potential layer list
     all_children = list(model_train.children())
     potential_layers = [
         all_children[2], 
@@ -113,10 +141,12 @@ def freeze_layers_adaptive_fine_grained(model_train, model_frozen, text, freeze_
     for name, module in named_modules:
         if module in used_modules:
             used_layer_names.append(name)
-
+            
+    # Freeze all parameters
     for param in model_train.parameters():
         param.requires_grad = False
-
+        
+    # Unfreeze parameters depending on layer type
     for name, param in model_train.named_parameters():
         if any(name.startswith(used_name) for used_name in used_layer_names):
             is_styled_conv = any(used_name.startswith('conv') for used_name in used_layer_names if name.startswith(used_name))
@@ -140,10 +170,15 @@ def freeze_layers_adaptive_fine_grained(model_train, model_frozen, text, freeze_
 
 
 def freeze_layers_adaptive_fine_tune(model_train, model_frozen, text, epochs=3, k=6, device='cuda'):
+    """    
+    Another way to select layers — track which parameters change the most over several epochs.
+    """
+    # Create a copy of the model to observe parameter changes
     generator_observation = copy.deepcopy(model_train)
     generator_observation.to(device)
     generator_observation.train()
 
+    # Define potential layers
     all_children = list(generator_observation.children())
     potential_layers = all_children[2:4] + list(all_children[4])  
 
@@ -160,6 +195,7 @@ def freeze_layers_adaptive_fine_tune(model_train, model_frozen, text, epochs=3, 
     with torch.no_grad():
         latent_w = model_frozen.style(latent_z)
 
+    # Train model copy and record parameter norm changes 
     for _ in range(epochs):
         optimizer.zero_grad()
         generated_img, _ = generator_observation([latent_w], input_is_latent=True, randomize_noise = False)
@@ -177,7 +213,8 @@ def freeze_layers_adaptive_fine_tune(model_train, model_frozen, text, epochs=3, 
         for name, values in val_par.items()
         if len(values) >= 2
     }
-
+    
+    # Categorize parameters by type
     categories = {
         'conv.weight': [],
         'conv.modulation.weight': [],
@@ -201,13 +238,15 @@ def freeze_layers_adaptive_fine_tune(model_train, model_frozen, text, epochs=3, 
         elif re.search(r'\.bias$', name):
             categories['bias'].append((name, diff))
 
+    # Select top-k parameters in each category
     selected_params = set()
     for cat, items in categories.items():
         topk = sorted(items, key=lambda x: abs(x[1]), reverse=True)[:k]
         selected_params.update(name for name, _ in topk)
-
+        
+    # Freeze all parameters and unfreeze selected ones
     for param in model_train.parameters():
-        param.requires_grad = False
+        param.requires_grad = False        
 
     for name, param in model_train.named_parameters():
         if name in selected_params:
