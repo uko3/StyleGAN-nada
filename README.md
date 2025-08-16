@@ -4,6 +4,8 @@
 
 This project provides a complete pipeline for image inversion and stylization using custom-trained StyleGAN-NADA generators. It automates model setup, preprocessing, encoding, and style transfer using CLIP-guided latent manipulation.
 
+![](img/stylegan_nada.png)
+
 ---
 
 ## Features
@@ -51,8 +53,9 @@ If you're using `.ipynb` notebooks:
 
 - Create a new notebook in Google Colab
 - Copy the content of `main.py` or use the provided:
-  - `01_Train_StyleGAN_NADA.ipynb`
-  - `02_Inference_StyleGAN_NADA.ipynb`
+  - `01_Train_StyleGAN_NADA.ipynb`[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/uko3/StyleGAN-nada/tree/main/notebooks/01_Train_StyleGAN_NADA.ipynb)
+  - `02_Inference_StyleGAN_NADA.ipynb`[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/uko3/StyleGAN-nada/tree/main/notebooks/02_Inference_StyleGAN_NADA.ipynb)
+  - `03_Experiments_StyleGAN_NADA.ipynb`[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/uko3/StyleGAN-nada/tree/main/notebooks/03_Experiments_StyleGAN_NADA.ipynb)
 
 ### 2. Run all cells
 
@@ -64,6 +67,9 @@ Go to:
 - All required pre-trained models will be downloaded automatically.
 - **Important**: Make sure to update the Google Drive IDs in the `stylegan_nada_generators` dictionary to load your custom generators.
 
+### Examples:
+![](img/styles_img.png)
+
 ---
 
 ## Preparing Images for Inversion
@@ -72,6 +78,8 @@ Go to:
 
 
 2. You can drag and drop images directly into the Colab file panel.
+
+![](img/inferens_real_img.png)
 
 ---
 
