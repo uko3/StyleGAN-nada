@@ -33,7 +33,7 @@ Our research explored several key aspects of the StyleGAN-NADA method:
 ---
 
 ### More details
-* Detailed report with experiments and conclusions: [Report StyleGAN-nada en.pdf](Report StyleGAN-nada en.pdf)
+* Detailed report with experiments and conclusions: [Report StyleGAN-nada en.pdf](https://github.com/uko3/StyleGAN-nada/blob/main/Report%20StyleGAN-nada%20en.pdf)
 
 ### Getting Started
 **Requirements**
