@@ -32,7 +32,7 @@ class CLIPLoss(torch.nn.Module):
 class CLIPDirectionalLoss(torch.nn.Module):
     """
     Directional CLIP Loss — measures the direction of change in features 
-    from source image to target in CLIP space.
+    from source image to target in CLIP space. 
     """   
     def __init__(self):
         super(CLIPDirectionalLoss, self).__init__()

@@ -16,7 +16,7 @@ def generate_visualize_and_save(
 ):
     """
     This function generates images from given seeds,    
-    visualizes the results, and saves the styled images.
+    visualizes the results, and saves the styled images. 
     """
     save_dir = os.path.join(output_dir, folder_name)
     os.makedirs(save_dir, exist_ok=True)

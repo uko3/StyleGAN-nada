@@ -10,7 +10,7 @@ def freeze_layers_adaptive(model_train, model_frozen, text_target_features, k=5,
     """
     This function selects the top-k most "active" layers in a StyleGAN model,
     which change the most when trying to match an image to a text description (via CLIP).
-    All other layers are frozen.
+    All other layers are frozen. 
     """
     batch_size_temp = 2
     latent_dim = model_frozen.style_dim
